@@ -1,0 +1,41 @@
+# Settings
+sudo nvidia-smi -pm 1
+sudo systemctl enable --now nvidia-persistenced 2>/dev/null || true
+
+
+# Get Configuration File for Xorg
+sudo nvidia-xconfig \
+  --cool-bits=4 \
+  --enable-all-gpus \
+  --allow-empty-initial-configuration
+
+
+# Start Xorg
+sudo Xorg :98 &
+sleep 2
+
+export DISPLAY=:98
+
+
+# if permission err
+xhost +SI:localuser:root
+
+
+# Check
+DISPLAY=:98 nvidia-settings -q screens -q fans
+
+
+# Settings
+for i in $(seq 0 7); do
+  DISPLAY=:98 nvidia-settings -a "[gpu:${i}]/GPUFanControlState=1"
+done
+
+for i in $(seq 0 7); do
+  DISPLAY=:98 nvidia-settings -a "[fan:${i}]/GPUTargetFanSpeed=80"
+done
+
+
+# Auto Mode
+for i in $(seq 0 7); do
+  DISPLAY=:98 nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0"
+done
